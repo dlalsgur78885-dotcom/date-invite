@@ -91,7 +91,7 @@ button:focus-visible{outline:2px solid var(--ink-2);outline-offset:2px}
 .btn{border:0;border-radius:999px;padding:14px 30px;font-size:17px;font-weight:600;transition:transform .25s cubic-bezier(.3,1.5,.5,1),opacity .2s,background .2s}
 .btn:active{transform:scale(.96)}
 .yes{background:var(--red);color:#fff;box-shadow:0 8px 18px -10px rgba(170,40,25,.7)}
-.no{background:var(--cream);color:var(--ink-2);border:1.5px solid var(--line);white-space:nowrap;z-index:20}
+.no{background:var(--cream);color:var(--ink-2);border:1.5px solid var(--line);white-space:nowrap;z-index:20;touch-action:none}
 .no.flying{box-shadow:0 6px 16px -8px rgba(70,35,20,.35)}
 .no.flying{position:fixed;transition:left .28s cubic-bezier(.3,1.4,.5,1),top .28s cubic-bezier(.3,1.4,.5,1)}
 .no.gone{opacity:0;pointer-events:none}
@@ -332,9 +332,11 @@ $('env').addEventListener('click', e => {
 
 /* 1. 좋아 / 싫어 */
 const yes = $('yes'), no = $('no');
-let tries = 0, touched = false;
+let tries = 0, lastAt = 0;
 
 function dodge() {
+  if (performance.now() - lastAt < 250) return;
+  lastAt = performance.now();
   tries++;
   const last = CONFIG.noTexts.length - 1;
   no.textContent = CONFIG.noTexts[Math.min(tries, last)];
@@ -347,11 +349,13 @@ function dodge() {
   const r = no.getBoundingClientRect(), pad = 16;
   const avoid = [yes, document.querySelector('.q')].map(el => el.getBoundingClientRect());
   const hit = (x, y) => avoid.some(a => x < a.right + 12 && x + r.width > a.left - 12 && y < a.bottom + 12 && y + r.height > a.top - 12);
+  // 눈에 띄게 멀리 도망가게: 지금 자리에서 150px 이상
+  const near = (x, y) => Math.hypot(x - r.left, y - r.top) < 150;
   let x, y, guard = 0;
   do {
     x = pad + Math.random() * (innerWidth - r.width - pad * 2);
     y = pad + Math.random() * (innerHeight - r.height - pad * 2);
-  } while (++guard < 60 && hit(x, y));
+  } while (++guard < 80 && (hit(x, y) || near(x, y)));
   if (!no.classList.contains('flying')) {
     no.style.left = r.left + 'px';
     no.style.top = r.top + 'px';
@@ -362,8 +366,17 @@ function dodge() {
   no.style.top = y + 'px';
 }
 no.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(); });
-no.addEventListener('pointerdown', e => { e.preventDefault(); touched = true; dodge(); });
-no.addEventListener('click', e => { e.preventDefault(); if (touched) { touched = false; return; } dodge(); });
+no.addEventListener('pointerdown', e => { e.preventDefault(); dodge(); });
+no.addEventListener('click', e => { e.preventDefault(); dodge(); });
+// 폰: 손가락이 버튼 근처에 닿기만 해도 먼저 도망간다
+document.addEventListener('touchstart', e => {
+  if (!$('s1').classList.contains('on') || no.classList.contains('gone') || yes.contains(e.target)) return;
+  const t = e.touches[0], r = no.getBoundingClientRect(), m = 36;
+  if (t.clientX > r.left - m && t.clientX < r.right + m && t.clientY > r.top - m && t.clientY < r.bottom + m) {
+    e.preventDefault();
+    dodge();
+  }
+}, { passive: false });
 
 yes.addEventListener('click', () => {
   const r = yes.getBoundingClientRect();
