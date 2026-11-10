@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>데이트 신청서</title>
+<meta property="og:title" content="너한테 온 편지가 있어 💌">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --paper:#f5ede0; --cream:#fffaf2; --line:#e0d1bb;
+  --ink:#2a1f1b; --ink-2:#76655a;
+  --red:#c8392b; --blue:#2f5fa8;
+  --env-back:#e3cfb2; --env-front:#ecdcc4; --env-flap:#dbc4a2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  color:var(--ink);
+  font-family:Pretendard,-apple-system,system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .15  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+  word-break:keep-all;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--ink-2);outline-offset:2px}
+
+.screen{
+  position:fixed;inset:0;display:flex;overflow-y:auto;
+  padding:max(24px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom));
+  opacity:0;visibility:hidden;transform:translateY(14px);
+  transition:opacity .55s ease,transform .55s ease,visibility 0s .55s;
+}
+.screen.on{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease,transform .55s ease}
+.wrap{margin:auto;width:100%;max-width:400px}
+.center{text-align:center}
+
+.hand{font-family:'Nanum Pen Script',cursive}
+.serif{font-family:'Gowun Batang',serif}
+
+/* 0. 봉투 */
+.to{font-size:30px;color:var(--ink-2);margin-bottom:22px}
+.envelope{
+  position:relative;display:block;margin:0 auto;border:0;background:none;
+  width:min(300px,78vw);aspect-ratio:3/2;perspective:900px;
+  animation:float 3.2s ease-in-out infinite;
+}
+.envelope.open{animation:none}
+@keyframes float{50%{transform:translateY(-6px)}}
+.env-back,.env-front,.env-flap,.letter{position:absolute}
+.env-back{inset:0;background:var(--env-back);border-radius:8px;box-shadow:0 22px 40px -22px rgba(70,40,20,.45)}
+.env-flap{
+  left:0;right:0;top:0;height:58%;background:var(--env-flap);
+  clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;z-index:3;
+  transition:transform .5s ease,z-index 0s .25s;
+}
+.letter{
+  left:7%;right:7%;top:7%;height:82%;z-index:1;
+  background:var(--cream);border-radius:4px;
+  display:flex;align-items:flex-start;justify-content:center;padding-top:5%;
+  font-size:28px;color:var(--ink);
+  box-shadow:0 1px 0 var(--line);
+  transition:transform .7s .35s cubic-bezier(.3,.7,.3,1);
+}
+.env-front{
+  inset:0;z-index:2;background:var(--env-front);border-radius:8px;
+  clip-path:polygon(0 0,50% 54%,100% 0,100% 100%,0 100%);
+}
+.seal{
+  position:absolute;left:50%;top:58%;z-index:4;width:50px;height:50px;border-radius:50%;
+  transform:translate(-50%,-50%);display:grid;place-items:center;
+  background:var(--red);color:#f7d6cf;font-size:20px;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 2px 4px rgba(80,20,10,.25);
+  transition:opacity .25s,transform .25s;
+}
+.envelope.open .seal{opacity:0;transform:translate(-50%,-50%) scale(.6)}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:0}
+.envelope.open .letter{transform:translateY(-48%)}
+.hint{margin-top:26px;font-size:14px;color:var(--ink-2);letter-spacing:.02em}
+
+/* 1. 질문 */
+.eyebrow{font-family:'Gowun Batang',serif;font-size:15px;color:var(--red);font-weight:700;letter-spacing:.1em}
+.q{font-family:'Gowun Batang',serif;font-size:30px;line-height:1.45;font-weight:700;margin:14px 0 36px}
+.yn{display:flex;gap:12px;justify-content:center;align-items:center;min-height:60px}
+.btn{border:0;border-radius:999px;padding:14px 30px;font-size:17px;font-weight:600;transition:transform .25s cubic-bezier(.3,1.5,.5,1),opacity .2s,background .2s}
+.btn:active{transform:scale(.96)}
+.yes{background:var(--red);color:#fff;box-shadow:0 8px 18px -10px rgba(170,40,25,.7)}
+.no{background:var(--cream);color:var(--ink-2);border:1.5px solid var(--line);white-space:nowrap;z-index:20}
+.no.flying{box-shadow:0 6px 16px -8px rgba(70,35,20,.35)}
+.no.flying{position:fixed;transition:left .28s cubic-bezier(.3,1.4,.5,1),top .28s cubic-bezier(.3,1.4,.5,1)}
+.no.gone{opacity:0;pointer-events:none}
+.nudge{font-size:26px;color:var(--ink-2);margin-top:26px;min-height:32px}
+
+/* 2·3. 고르기 */
+.step{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.h2{font-family:'Gowun Batang',serif;font-size:27px;font-weight:700;margin:6px 0 20px}
+.h3{font-size:15px;font-weight:700;margin:26px 0 10px}
+.month{font-size:14px;font-weight:700;margin-bottom:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.wd{font-size:12px;text-align:center;color:var(--ink-2);padding-bottom:2px}
+.wd.sun{color:var(--red)} .wd.sat{color:var(--blue)}
+.day{
+  aspect-ratio:1;border:1.5px solid var(--line);background:var(--cream);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;
+}
+.day small{font-size:10px;font-weight:500;color:var(--ink-2);line-height:1}
+.day.sun{color:var(--red)} .day.sat{color:var(--blue)}
+.day.sel{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.day.sel small{color:var(--cream)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--cream);border-radius:999px;padding:10px 18px;font-size:15px;font-weight:600}
+.chip.sel{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.act{
+  display:flex;align-items:center;gap:10px;padding:14px 12px;text-align:left;
+  border:1.5px solid var(--line);background:var(--cream);border-radius:14px;font-size:15px;font-weight:600;
+}
+.act .e{font-size:22px;line-height:1}
+.act .ck{margin-left:auto;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent;flex:none}
+.act.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.act.sel .ck{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.free{
+  width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--line);
+  background:var(--cream);font:inherit;font-size:16px;color:var(--ink);outline:none;
+}
+.free:focus{border-color:var(--ink-2)}
+.free::placeholder{color:#a8988c}
+
+.primary{background:var(--ink);color:var(--cream)}
+.primary:disabled{opacity:.3;cursor:default}
+.ghost{background:transparent;color:var(--ink-2)}
+.block{display:block;width:100%;margin-top:26px}
+.ghost.block{margin-top:6px}
+
+/* 4. 티켓 */
+.done{font-size:36px;color:var(--red);transform:rotate(-3deg)}
+.ticket{
+  position:relative;text-align:left;margin:16px 0 0;
+  background:var(--cream);border-radius:18px;
+  box-shadow:0 1px 0 var(--line),0 22px 44px -24px rgba(70,35,20,.45);
+}
+.t-main{padding:22px 22px 16px}
+.t-label{font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--red)}
+.t-names{font-family:'Gowun Batang',serif;font-size:25px;font-weight:700;margin:8px 0 14px}
+.t-names .amp{color:var(--red);margin:0 4px}
+.t-row{display:grid;grid-template-columns:46px 1fr;gap:8px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.t-row dt{font-size:13px;color:var(--ink-2);padding-top:1px}
+.t-row dd{font-weight:600;line-height:1.5}
+.t-cut{position:relative;margin:0 16px;border-top:2px dashed var(--line)}
+.t-cut::before,.t-cut::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--paper)}
+.t-cut::before{left:-28px} .t-cut::after{right:-28px}
+.t-stub{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 20px}
+.barcode{
+  width:128px;height:30px;opacity:.85;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 13px,var(--ink) 13px 14px,transparent 14px 17px);
+}
+.t-no{font-size:12px;color:var(--ink-2);letter-spacing:.12em;font-variant-numeric:tabular-nums;text-align:right;line-height:1.5}
+.stamp{
+  position:absolute;right:18px;top:20px;padding:6px 10px;border:2.5px solid var(--red);border-radius:10px;
+  color:var(--red);font-weight:800;font-size:14px;letter-spacing:.08em;opacity:0;transform:rotate(-12deg);
+}
+#s4.on .stamp{animation:stamp .5s .6s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes stamp{from{opacity:0;transform:rotate(-12deg) scale(2.3)}to{opacity:.9;transform:rotate(-12deg) scale(1)}}
+.from{font-size:24px;color:var(--ink-2);margin-top:18px}
+.toast{
+  position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,20px);
+  background:var(--ink);color:var(--cream);padding:12px 18px;border-radius:999px;font-size:14px;
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:60;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.heart{position:fixed;pointer-events:none;z-index:50;line-height:1}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<section class="screen on" id="s0">
+  <div class="wrap center">
+    <p class="hand to">To. <span data-to></span></p>
+    <button class="envelope" id="env" aria-label="편지 열기">
+      <span class="env-back"></span>
+      <span class="env-flap"></span>
+      <span class="letter hand">데이트 신청서</span>
+      <span class="env-front"></span>
+      <span class="seal">♥</span>
+    </button>
+    <p class="hint">눌러서 열어 봐</p>
+  </div>
+</section>
+
+<section class="screen" id="s1">
+  <div class="wrap center">
+    <p class="eyebrow">Q.</p>
+    <h1 class="q"><span data-to></span>,<br><span id="question"></span></h1>
+    <div class="yn">
+      <button class="btn yes" id="yes">좋아</button>
+      <button class="btn no" id="no">싫어</button>
+    </div>
+    <p class="hand nudge" id="nudge"></p>
+  </div>
+</section>
+
+<section class="screen" id="s2">
+  <div class="wrap">
+    <p class="step">1 / 2</p>
+    <h2 class="h2">언제가 좋아?</h2>
+    <p class="month" id="month"></p>
+    <div class="cal" id="cal"></div>
+    <h3 class="h3">몇 시쯤?</h3>
+    <div class="chips" id="times"></div>
+    <button class="btn primary block" id="toWhat" disabled>다음</button>
+  </div>
+</section>
+
+<section class="screen" id="s3">
+  <div class="wrap">
+    <p class="step">2 / 2</p>
+    <h2 class="h2">뭐 하고 싶어?</h2>
+    <div class="acts" id="acts"></div>
+    <input class="free" id="free" maxlength="30" placeholder="다른 거 하고 싶으면 여기 써 줘">
+    <button class="btn primary block" id="toTicket" disabled>약속하기</button>
+    <button class="btn ghost block" id="backWhen">날짜 다시 고르기</button>
+  </div>
+</section>
+
+<section class="screen" id="s4">
+  <div class="wrap center">
+    <p class="hand done">약속했다!</p>
+    <div class="ticket">
+      <div class="t-main">
+        <p class="t-label">DATE TICKET · ADMIT TWO</p>
+        <p class="t-names"><span data-to></span><span class="amp">&amp;</span><span data-from></span></p>
+        <dl>
+          <div class="t-row"><dt>날짜</dt><dd id="tDate"></dd></div>
+          <div class="t-row"><dt>시간</dt><dd id="tTime"></dd></div>
+          <div class="t-row"><dt>코스</dt><dd id="tPlan"></dd></div>
+        </dl>
+      </div>
+      <div class="t-cut"></div>
+      <div class="t-stub">
+        <span class="barcode"></span>
+        <span class="t-no" id="tNo"></span>
+      </div>
+      <span class="stamp">약속 확정</span>
+    </div>
+    <button class="btn primary block" id="send">답장 보내기</button>
+    <button class="btn ghost block" id="again">처음부터 다시</button>
+    <p class="hand from">From. <span data-from></span></p>
+  </div>
+</section>
+
+<p class="toast" id="toast"></p>
+
+<script>
+/* ── 여기만 바꾸면 된다 ──
+   주소 뒤에 ?to=이름&from=이름 을 붙여도 바뀐다 */
+const CONFIG = {
+  to: '자기',
+  from: '나',
+  question: '나랑 데이트 할래?',
+  days: 14,                                   // 내일부터 며칠 고르게 할지
+  times: ['점심', '오후', '저녁', '하루 종일'],
+  acts: [
+    ['🍝', '맛집 가기'], ['☕', '카페 투어'],
+    ['🎬', '영화 보기'], ['🌙', '야경 산책'],
+    ['🖼️', '전시 보기'], ['🛍️', '쇼핑하기'],
+    ['🎤', '노래방'],   ['🏠', '집에서 뒹굴'],
+  ],
+  noTexts: ['싫어', '진짜?', '다시 생각해 봐', '후회할 텐데', '한 번만 더', '마지막 기회야', '…'],
+};
+
+const qs = new URLSearchParams(location.search);
+const TO = qs.get('to') || CONFIG.to;
+const FROM = qs.get('from') || CONFIG.from;
+const $ = id => document.getElementById(id);
+document.querySelectorAll('[data-to]').forEach(el => el.textContent = TO);
+document.querySelectorAll('[data-from]').forEach(el => el.textContent = FROM);
+$('question').textContent = CONFIG.question;
+
+const state = { day: null, time: null, acts: new Set() };
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  if (id === 's4') fillTicket();
+}
+
+function burst(x, y, n = 22) {
+  for (let i = 0; i < n; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart';
+    h.textContent = '♥';
+    h.style.left = x + 'px';
+    h.style.top = y + 'px';
+    h.style.fontSize = (12 + Math.random() * 18) + 'px';
+    h.style.color = Math.random() < .7 ? '#c8392b' : '#e9957f';
+    document.body.appendChild(h);
+    const a = Math.random() * Math.PI * 2, d = 70 + Math.random() * 130;
+    h.animate([
+      { transform: 'translate(-50%,-50%) scale(.3)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d - 50}px)) scale(1)`, opacity: 0 },
+    ], { duration: 900 + Math.random() * 600, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => h.remove();
+  }
+}
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* 0. 봉투 */
+$('env').addEventListener('click', e => {
+  const env = e.currentTarget;
+  if (env.classList.contains('open')) return;
+  env.classList.add('open');
+  setTimeout(() => go('s1'), 1500);
+});
+
+/* 1. 좋아 / 싫어 */
+const yes = $('yes'), no = $('no');
+let tries = 0, touched = false;
+
+function dodge() {
+  tries++;
+  const last = CONFIG.noTexts.length - 1;
+  no.textContent = CONFIG.noTexts[Math.min(tries, last)];
+  yes.style.transform = `scale(${1 + tries * .13})`;
+  if (tries > last) {
+    no.classList.add('gone');
+    $('nudge').textContent = '이제 좋아밖에 없어';
+    return;
+  }
+  const r = no.getBoundingClientRect(), pad = 16;
+  const avoid = [yes, document.querySelector('.q')].map(el => el.getBoundingClientRect());
+  const hit = (x, y) => avoid.some(a => x < a.right + 12 && x + r.width > a.left - 12 && y < a.bottom + 12 && y + r.height > a.top - 12);
+  let x, y, guard = 0;
+  do {
+    x = pad + Math.random() * (innerWidth - r.width - pad * 2);
+    y = pad + Math.random() * (innerHeight - r.height - pad * 2);
+  } while (++guard < 60 && hit(x, y));
+  if (!no.classList.contains('flying')) {
+    no.style.left = r.left + 'px';
+    no.style.top = r.top + 'px';
+    no.classList.add('flying');
+    no.getBoundingClientRect();
+  }
+  no.style.left = x + 'px';
+  no.style.top = y + 'px';
+}
+no.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(); });
+no.addEventListener('pointerdown', e => { e.preventDefault(); touched = true; dodge(); });
+no.addEventListener('click', e => { e.preventDefault(); if (touched) { touched = false; return; } dodge(); });
+
+yes.addEventListener('click', () => {
+  const r = yes.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2, 30);
+  no.classList.add('gone');
+  setTimeout(() => go('s2'), 1000);
+});
+
+/* 2. 언제 */
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+const days = [];
+for (let i = 1; i <= CONFIG.days; i++) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + i);
+  days.push(d);
+}
+const m0 = days[0].getMonth() + 1, m1 = days[days.length - 1].getMonth() + 1;
+$('month').textContent = m0 === m1 ? `${m0}월` : `${m0}월 – ${m1}월`;
+
+const cal = $('cal');
+WD.forEach((w, i) => cal.insertAdjacentHTML('beforeend', `<span class="wd${i === 0 ? ' sun' : i === 6 ? ' sat' : ''}">${w}</span>`));
+for (let i = 0; i < days[0].getDay(); i++) cal.insertAdjacentHTML('beforeend', '<span></span>');
+days.forEach((d, i) => {
+  const b = document.createElement('button');
+  const wd = d.getDay();
+  b.className = 'day' + (wd === 0 ? ' sun' : wd === 6 ? ' sat' : '');
+  b.innerHTML = (d.getDate() === 1 && i > 0 ? `<small>${d.getMonth() + 1}월</small>` : '') + d.getDate();
+  b.setAttribute('aria-label', fmtDate(d));
+  b.addEventListener('click', () => {
+    cal.querySelectorAll('.day').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    state.day = d;
+    checkWhen();
+  });
+  cal.appendChild(b);
+});
+
+CONFIG.times.forEach(t => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.textContent = t;
+  b.addEventListener('click', () => {
+    $('times').querySelectorAll('.chip').forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel');
+    state.time = t;
+    checkWhen();
+  });
+  $('times').appendChild(b);
+});
+
+function checkWhen() { $('toWhat').disabled = !(state.day && state.time); }
+$('toWhat').addEventListener('click', () => go('s3'));
+
+/* 3. 뭐 할지 */
+CONFIG.acts.forEach(([e, t]) => {
+  const b = document.createElement('button');
+  b.className = 'act';
+  b.innerHTML = `<span class="e">${e}</span><span>${t}</span><span class="ck">✓</span>`;
+  b.addEventListener('click', () => {
+    b.classList.toggle('sel');
+    b.classList.contains('sel') ? state.acts.add(`${e} ${t}`) : state.acts.delete(`${e} ${t}`);
+    checkWhat();
+  });
+  $('acts').appendChild(b);
+});
+$('free').addEventListener('input', checkWhat);
+function checkWhat() { $('toTicket').disabled = !(state.acts.size || $('free').value.trim()); }
+$('toTicket').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top, 24);
+  setTimeout(() => go('s4'), 700);
+});
+$('backWhen').addEventListener('click', () => go('s2'));
+
+/* 4. 티켓 */
+function fmtDate(d) { return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})`; }
+function plans() {
+  const list = [...state.acts];
+  const free = $('free').value.trim();
+  if (free) list.push(`✏️ ${free}`);
+  return list;
+}
+function fillTicket() {
+  const d = state.day;
+  $('tDate').textContent = fmtDate(d);
+  $('tTime').textContent = state.time;
+  $('tPlan').innerHTML = plans().map(p => p.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])).join('<br>');
+  $('tNo').innerHTML = `No. ${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}<br>${d.getFullYear()}`;
+}
+
+$('send').addEventListener('click', async () => {
+  const text = `💌 데이트 신청 수락!\n${TO} ♥ ${FROM}\n📅 ${fmtDate(state.day)} ${state.time}\n${plans().join('\n')}`;
+  if (navigator.share) {
+    try { await navigator.share({ text }); return; }
+    catch (err) { if (err.name === 'AbortError') return; }
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('복사했어! 카톡에 붙여 넣어 줘');
+  } catch {
+    toast('화면을 캡처해서 보내 줘');
+  }
+});
+
+$('again').addEventListener('click', () => location.reload());
+</script>
+</body>
+</html>
